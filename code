@@ -1,0 +1,259 @@
+PImage cartman;
+PImage coin;
+int interval = 30000;
+int timer;
+int secondsDown;
+int x, y, z = 40;
+int score = 0;
+int topscore = 0;
+int lastscore = 0;
+float coinX;
+float coinY;
+float eX = random(0, 1900);
+float eY = random(0, 1000);
+float eXSpeed = -5;
+float pX = 1920/2;
+float pY = 1080/2;
+float xSpeed = 5;
+float ySpeed = 5;
+float grav = 0.5;
+boolean pUp;
+boolean pDown;
+boolean pRight;
+boolean pLeft;
+boolean startGame = false;
+boolean mousepressed = false;
+
+void setup() {
+  fullScreen();
+  noStroke();
+  textAlign(CENTER);
+  textSize(35);
+  timer = millis();
+  textSize(35);
+  cartman = loadImage("cartman.png");
+  coin = loadImage("coin.png");
+  resetGame();
+  coinX = random(0, 700);
+  coinY = 50;
+}
+
+void draw() {
+  background(35, 113, 40);
+  drawEnemy();
+  updateEnemy();
+  int secondsPassed = (millis() - timer) / 1000;
+  secondsDown = interval/1000 - secondsPassed;
+  text(secondsDown, 150, 195);
+  fill(92, 137, 227);
+  drawCart();
+  text("Score: "+score, 80, 70);
+  image(coin, coinX, coinY, 50, 50);
+
+
+
+
+  if (pX < 0) {
+    pX = 1;
+  }
+
+  if (pX > 1800) {
+    pX = 1800;
+  }
+
+  if (pY > 1000) {
+    pY = 1000;
+  }
+
+  if (pY < 0) {
+    pY = 0;
+  }
+
+  if (secondsDown == 20) {
+    xSpeed += 0.5;
+    ySpeed += 0.5;
+    eXSpeed -= 0.05;
+    coinY = coinY + random(6, 20);
+  }
+
+  if (secondsDown == 10) {
+    xSpeed += 0.5;
+    ySpeed += 0.5;
+    eXSpeed -=0.05;
+    coinY = coinY + random(9, 30);
+  }
+
+  if (secondsDown == 1){
+    lastscore = score;
+    if(topscore < score){
+    topscore = score;
+    }
+  }
+
+  if (secondsDown == 0) {
+    winScreen();
+  }
+
+  if (pUp) {
+    pY-=ySpeed;
+  }
+
+  if (pLeft) {
+    pX-=xSpeed;
+  }
+
+  if (pDown) {
+    pY+=ySpeed;
+  }
+
+  if (pRight) {
+    pX+=xSpeed;
+  }
+
+  if (startGame==false) {
+    interval = 30000;
+    background(0);
+    textSize(50);
+    text("Welcome to Coin Crazy (featuring Cartman) ", width/2, 50);
+    text("Last Score: "+lastscore, width/2, 100);
+    text("Top Score: "+topscore, width/2, 150);
+    text("Click to play!", width/2, 250);
+    text("Buggy still, W.I.P.!", width/2, 950);
+  }
+  
+  
+  if(coinY > 1080){
+    score--;
+    coinY = 50;
+    coinX = random(0, 1920);
+  }
+
+  //coin collision
+  if (coinY > pY - 10 && coinX > pX - 10 && coinX < pX + 50) {
+    score++;
+    coinY = 50;
+    coinX = random(0, 1920);
+  }
+  
+    if((eX < pX + 25) && (eX + 25 > pX) && (pY+50 > eY) && (pY < eY + 50)){
+     eX = 1900;
+     eXSpeed = -5;
+     lastscore = score;
+     if(score>topscore){
+     topscore = score;
+     }
+     resetGame();
+   }
+
+  
+    coinY = coinY + random(3, 10);
+}
+
+
+void resetGame() {
+  x = width/2;
+  y = height/2;
+  score = 0;
+  interval  = 30000;
+  xSpeed = 5;
+  ySpeed = 5;
+  timer = millis();
+  pX = width/2;
+  pY = height/2;
+  coinY = 50;
+  coinX = random(0, 1920);
+  eXSpeed =  -5;
+  eX = 1900;
+  eY = random(0, 1000);
+  startGame = false;
+  score = 0;
+}
+
+void winScreen(){
+  xSpeed = 5;
+  ySpeed = 5;
+  interval = 0;
+  background(0);
+  text("You win! Score: "+score, width/2, height/2);
+  eX = 1000000;
+  coinY = 0;
+  for(int i = 5; i > 0; i--){
+  text(i+"Seconds til start", width/3, height/3);
+  if(i == 1){
+    resetGame();
+  }
+  }
+}
+
+
+void keyPressed() {
+
+  if (key == 'w' || key == 'W' || keyCode == UP) {
+    pUp = true;
+  }
+
+  if (key == 'a' || key == 'A' || keyCode == LEFT) {
+    pLeft = true;
+  }
+
+  if (key == 's' || key == 'S' || keyCode == DOWN) {
+    pDown = true;
+  }
+
+  if (key == 'd' || key == 'D' || keyCode == RIGHT) {
+    pRight = true;
+  }
+}
+
+void keyReleased() {
+
+  if (key == 'w' || key == 'W' || keyCode == UP) {
+    pUp = false;
+  }
+
+  if (key == 'a' || key == 'A' || keyCode == LEFT) {
+    pLeft = false;
+  }
+
+  if (key == 's' || key == 'S' || keyCode == DOWN) {
+    pDown = false;
+  }
+
+  if (key == 'd' || key == 'D' || keyCode == RIGHT) {
+    pRight = false;
+  }
+}
+
+void drawCart() {
+  image(cartman, pX, pY, 100, 100);
+}
+
+void mousePressed() {
+  startGame = true;
+  score = 0;
+  mousepressed = true;
+}
+
+void drawEnemy(){
+ fill(252, 0, 8);
+ rect(eX, eY, 40, 40); 
+}
+
+
+void updateEnemy(){
+  eX += eXSpeed;
+   if(eX < 0){
+     eX = 1900;
+     score +=1;
+     eXSpeed -= 1;
+     eY = random(0, 1000);
+   }
+}
+
+
+
+
+
+
+
+
